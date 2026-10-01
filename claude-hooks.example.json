@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 1 -X POST http://127.0.0.1:47821/claude -H \"Content-Type: application/json\" --data-binary @- || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 1 -X POST http://127.0.0.1:47821/claude -H \"Content-Type: application/json\" --data-binary @- || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 1 -X POST http://127.0.0.1:47821/claude -H \"Content-Type: application/json\" --data-binary @- || true"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 1 -X POST http://127.0.0.1:47821/claude -H \"Content-Type: application/json\" --data-binary @- || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -m 1 -X POST http://127.0.0.1:47821/claude -H \"Content-Type: application/json\" --data-binary @- || true"
+          }
+        ]
+      }
+    ]
+  }
+}

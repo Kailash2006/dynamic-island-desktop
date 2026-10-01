@@ -1,0 +1,87 @@
+{
+  "name": "dynamic-island-desktop",
+  "productName": "Dynamic Island Desktop",
+  "version": "1.2.2",
+  "description": "An iOS-inspired Dynamic Island overlay for Windows desktops.",
+  "author": "Kailash Rajendran",
+  "license": "MIT",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n vite,electron -c cyan,magenta \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build:renderer": "vite build",
+    "start": "electron .",
+    "build": "vite build && electron-builder --win nsis portable",
+    "build:installer": "vite build && electron-builder --win nsis",
+    "build:portable": "vite build && electron-builder --win portable",
+    "snapshot": "vite build && cross-env DI_SNAPSHOT_DIR=snapshots electron .",
+    "release": "vite build && electron-builder --win nsis --publish always"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.0",
+    "cross-env": "^10.0.0",
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
+    "motion": "^12.23.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "vite": "^7.1.0",
+    "wait-on": "^8.0.4"
+  },
+  "build": {
+    "appId": "com.kailash.dynamicisland",
+    "productName": "Dynamic Island",
+    "copyright": "Copyright \u00a9 2026 Kailash Rajendran",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dynamic Island",
+      "artifactName": "DynamicIsland-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "DynamicIsland-Portable-${version}.exe"
+    },
+    "extraResources": [
+      {
+        "from": "native",
+        "to": "native"
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Kailash2006",
+        "repo": "dynamic-island-desktop",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kailash2006/dynamic-island-desktop.git"
+  },
+  "homepage": "https://github.com/Kailash2006/dynamic-island-desktop"
+}

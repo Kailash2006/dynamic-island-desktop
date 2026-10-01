@@ -1,0 +1,162 @@
+/* Liquid glass material. Layers sit under the content (z 0–2); the rim sits on top. */
+
+.island--glass {
+  background: transparent;
+  box-shadow:
+    0 12px 32px -10px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.glass__base,
+.glass__edge,
+.glass__tint,
+.glass__sheen,
+.glass__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glass__base {
+  z-index: 0;
+  background: linear-gradient(180deg, #2c2c33, #141418);
+}
+
+.glass__backdrop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 600px;
+  height: 280px;
+  margin-left: -300px;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  transform-origin: 50% 6%;
+  filter: blur(12px) saturate(1.9) brightness(1.06);
+}
+
+/* A narrow ring that shows the backdrop magnified more: light bending at the edge. */
+.glass__edge {
+  z-index: 1;
+  overflow: hidden;
+  padding: 4px;
+  opacity: 0.85;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.glass__backdrop--fade-in {
+  animation: glass-fade-in 0.32s ease-out both;
+}
+@keyframes glass-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.reduce-motion .glass__backdrop--fade-in {
+  animation: none;
+}
+
+.glass__backdrop--edge {
+  filter: blur(5px) saturate(2) brightness(1.14);
+}
+
+.glass__tint {
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.12)),
+    rgba(14, 14, 18, calc(0.36 * var(--glass-k, 1)));
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1.5px rgba(255, 255, 255, 0.08),
+    inset 0 0 18px rgba(255, 255, 255, 0.06);
+  transition: background-color 0.3s ease;
+}
+.glass__tint--strong {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.01) 45%, rgba(0, 0, 0, 0.14)),
+    rgba(12, 12, 16, calc(0.52 * var(--glass-k, 1)));
+}
+.glass__tint--solid {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 50%),
+    rgba(20, 20, 24, 0.55);
+}
+
+.glass__sheen {
+  z-index: 2;
+  background:
+    radial-gradient(90% 75% at 22% -18%, rgba(255, 255, 255, 0.26), transparent 62%),
+    radial-gradient(70% 60% at 88% 125%, rgba(255, 255, 255, 0.1), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+/* Hairline rim whose brightness varies around the shape, like a specular edge. */
+.glass__rim {
+  z-index: 4;
+  padding: 1.1px;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.2) 22%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.2) 78%,
+    rgba(255, 255, 255, 0.65)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Attached to the screen edge: no bright line along the top. */
+.island--idle .glass__rim,
+.island--peek .glass__rim {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.35) 70%,
+    rgba(255, 255, 255, 0.7)
+  );
+}
+
+.island--glass .island__content {
+  z-index: 3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Controls read as glass-on-glass. */
+.island--glass .ibtn--gray,
+.island--glass .tile--gray,
+.island--glass .feature__icon,
+.island--glass .chip,
+.island--glass .pill-btn:not(.pill-btn--green),
+.island--glass .list__icon:not(.list__icon--app) {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.35);
+}
+.island--glass .scrubber__track,
+.island--glass .bar {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* The side bubble uses the same material. */
+.bubble--glass {
+  background: transparent;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bubble--glass .bubble__icon {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+}
+.bubble--glass .glass__backdrop {
+  left: 0;
+  margin-left: 0;
+}
