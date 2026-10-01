@@ -1,0 +1,68 @@
+# Builds the Windows installer on GitHub and publishes it as a release, so
+# installed copies update themselves. Runs when source.zip is uploaded to the
+# repository (or from Actions → Release → Run workflow).
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: ['source.zip']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack uploaded source
+        shell: pwsh
+        run: |
+          if (Test-Path source.zip) {
+            Expand-Archive -Path source.zip -DestinationPath . -Force
+            Remove-Item source.zip
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git diff --cached --quiet
+            if ($LASTEXITCODE -ne 0) {
+              git commit -m "Update source from source.zip"
+              git push
+            }
+          }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "version=$version" >> $env:GITHUB_OUTPUT
+          gh release view "v$version" *> $null
+          if ($LASTEXITCODE -eq 0) { "exists=true" >> $env:GITHUB_OUTPUT } else { "exists=false" >> $env:GITHUB_OUTPUT }
+          exit 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build and publish v${{ steps.version.outputs.version }}
+        if: steps.version.outputs.exists == 'false'
+        shell: pwsh
+        run: |
+          npm ci
+          npx vite build
+          npx electron-builder --win nsis --x64 --publish always
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Already released
+        if: steps.version.outputs.exists == 'true'
+        run: echo "v${{ steps.version.outputs.version }} is already released. Raise the version in package.json to publish an update."
