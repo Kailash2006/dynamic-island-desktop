@@ -6,7 +6,6 @@ import { call } from './activities/call.js';
 import { showCharging, batteryStore } from './activities/battery.js';
 import { showSampleNotification } from './activities/notification.js';
 import { runStatusDemo, showStatus } from './activities/status.js';
-import { runClaudeDemo } from './activities/claude.js';
 import { showClipboard } from './activities/clipboard.js';
 import { showDemoAppCall } from './activities/appNotifications.js';
 
@@ -40,14 +39,12 @@ export function handleCommand(command) {
         action: 'install-update',
         duration: 20000,
       });
-    case 'claude':
-      return runClaudeDemo();
     case 'clipboard':
       return showClipboard({ text: 'Transformers use self-attention to weigh tokens', length: 48 });
     case 'status':
       return runStatusDemo(command.variant);
     case 'welcome':
-      return showStatus('info', 'Dynamic Island is running', 'Press Ctrl+Shift+D for the control panel', 6000);
+      return showStatus('info', 'Dynoland is running', 'Press Ctrl+Shift+D for the control panel', 6000);
     case 'expand':
       return island.setExpanded(true);
     case 'collapse':

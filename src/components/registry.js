@@ -7,7 +7,6 @@ import { TimerCompact, TimerExpanded, TimerMinimal } from './TimerActivity/Timer
 import { ChargingCompact, ChargingExpanded, ChargingMinimal } from './ChargingActivity/ChargingActivity.jsx';
 import { DownloadCompact, DownloadExpanded, DownloadMinimal } from './DownloadActivity/DownloadActivity.jsx';
 import { CallCompact, CallExpanded, CallIncoming, CallMinimal } from './CallActivity/CallActivity.jsx';
-import { ClaudeBanner, ClaudeCompact, ClaudeExpanded, ClaudeMinimal } from './ClaudeActivity/ClaudeActivity.jsx';
 import { NotificationBanner } from './NotificationActivity/NotificationActivity.jsx';
 import { ClipboardBanner } from './ClipboardActivity/ClipboardActivity.jsx';
 import { StatusBanner } from './StatusActivity/StatusActivity.jsx';
@@ -62,19 +61,6 @@ export const ACTIVITIES = {
     Banner: CallIncoming,
     Minimal: CallMinimal,
     onBannerClick: () => {},
-  },
-  claude: {
-    sizes: {
-      compact: { w: 292, h: 36 },
-      expanded: (a) => ({ w: 400, h: 90 + (a.steps?.length ?? 0) * 19 + (a.state === 'waiting' && a.message ? 18 : 0) }),
-      banner: { w: 400, h: 80 },
-    },
-    presentation: (a) => (a.state === 'waiting' && !a.acknowledged ? 'banner' : null),
-    Compact: ClaudeCompact,
-    Expanded: ClaudeExpanded,
-    Banner: ClaudeBanner,
-    Minimal: ClaudeMinimal,
-    onBannerClick: (a) => island.update(a.id, { acknowledged: true }),
   },
   notification: {
     sizes: { banner: { w: 392, h: 78 } },

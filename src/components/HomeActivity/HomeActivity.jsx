@@ -8,7 +8,7 @@ import { clipboardHistory, notificationHistory, statusStore, useStore } from '..
 import { useSettings } from '../../services/settings.js';
 import { useNow } from '../../hooks/useNow.js';
 import { BatteryGlyph } from '../shared/Primitives.jsx';
-import { BellIcon, ChevronLeftIcon, ClipboardIcon, GearIcon, NoteIcon, SparkIcon, TimerIcon } from '../icons/Icons.jsx';
+import { BellIcon, ChevronLeftIcon, ClipboardIcon, GearIcon, NoteIcon, TimerIcon } from '../icons/Icons.jsx';
 import { GREEN } from '../../utils/colors.js';
 
 // What the island can do, shown when you click it while nothing is running
@@ -20,20 +20,11 @@ function openMusic() {
   else island.openHome('music');
 }
 
-function openClaude() {
-  if (island.get('claude')) island.focus('claude', true);
-  else {
-    bridge.openPanel('claude');
-    island.closeHome();
-  }
-}
-
 const FEATURES = [
   { id: 'timer', label: 'Timer', color: '#ff9f0a', icon: <TimerIcon size={20} />, run: () => island.openHome('timer') },
   { id: 'music', label: 'Music', color: '#ff375f', icon: <NoteIcon size={19} />, run: openMusic },
   { id: 'clipboard', label: 'Clipboard', color: '#64d2ff', icon: <ClipboardIcon size={19} />, run: () => island.openHome('clipboard') },
   { id: 'alerts', label: 'Alerts', color: '#ff453a', icon: <BellIcon size={19} />, run: () => island.openHome('alerts') },
-  { id: 'claude', label: 'Claude', color: '#d97757', icon: <SparkIcon size={18} />, run: openClaude },
   {
     id: 'settings',
     label: 'Settings',

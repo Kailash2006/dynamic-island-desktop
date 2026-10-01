@@ -3,7 +3,6 @@ import { bridge } from '../../services/bridge.js';
 import { settingsStore, useSettings } from '../../services/settings.js';
 import { initStatus, statusStore, useStore } from '../../services/stores.js';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
-import { claudeHookSettings } from '../../utils/claudeHooks.js';
 import { mediaAppName } from '../../services/activities/media.js';
 import {
   ArrowDownIcon,
@@ -16,11 +15,11 @@ import {
   NoteIcon,
   PhoneIcon,
   PlayIcon,
-  SparkIcon,
   TimerIcon,
   WarningIcon,
 } from '../icons/Icons.jsx';
 import { Spinner } from '../shared/Primitives.jsx';
+import logoMark from '../../assets/logo-mark.png';
 import './panel.css';
 
 const DEMOS = [
@@ -33,7 +32,6 @@ const DEMOS = [
   { label: 'Notification', color: '#25d366', icon: <BellIcon size={15} />, command: { type: 'notification' } },
   { label: 'WhatsApp call', color: '#25d366', icon: <PhoneIcon size={15} />, command: { type: 'app-call' } },
   { label: 'Phone call', color: '#30d158', icon: <PhoneIcon size={15} />, command: { type: 'call' } },
-  { label: 'Claude Code', color: '#d97757', icon: <SparkIcon size={15} />, command: { type: 'claude' } },
   { label: 'Copied text', color: '#636366', icon: <ClipboardIcon size={15} />, command: { type: 'clipboard' } },
   { label: 'Loading', color: '#636366', icon: <Spinner size={14} />, command: { type: 'status', variant: 'loading' } },
   { label: 'Success', color: '#30d158', icon: <span className="glyph-check">✓</span>, command: { type: 'status', variant: 'success' } },
@@ -45,7 +43,6 @@ const SECTIONS = [
   { id: 'try', label: 'Try it', icon: <PlayIcon size={14} />, blurb: 'Show any activity on the island right now.' },
   { id: 'look', label: 'Appearance', icon: <InfoIcon size={16} />, blurb: 'Material, size and motion.' },
   { id: 'apps', label: 'Connected apps', icon: <NoteIcon size={15} />, blurb: 'Music, notifications and calls from apps on this PC.' },
-  { id: 'claude', label: 'Claude Code', icon: <SparkIcon size={14} />, blurb: 'See what Claude Code is doing while you work.' },
   { id: 'system', label: 'System', icon: <GearIcon size={16} />, blurb: 'Startup, updates and quitting.' },
 ];
 
@@ -137,7 +134,7 @@ function glassDetail(source, status) {
   }
 }
 
-const PROCESS_NAMES = { chrome: 'Chrome', msedge: 'Edge', firefox: 'Firefox', code: 'VS Code', claude: 'Claude', explorer: 'File Explorer', spotify: 'Spotify', whatsapp: 'WhatsApp' };
+const PROCESS_NAMES = { chrome: 'Chrome', msedge: 'Edge', firefox: 'Firefox', code: 'VS Code', explorer: 'File Explorer', spotify: 'Spotify', whatsapp: 'WhatsApp' };
 const prettyProcess = (name) => PROCESS_NAMES[name.toLowerCase()] ?? name;
 
 function AppearanceSection({ settings }) {
@@ -305,31 +302,6 @@ function AppsSection({ settings }) {
   );
 }
 
-function ClaudeSection({ settings, info }) {
-  const [copied, setCopied] = useState(false);
-  const copyHooks = async () => {
-    bridge.writeClipboard(JSON.stringify(claudeHookSettings(info.claudePort), null, 2));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <>
-      <div className="group">
-        <Row title="Show Claude Code activity" detail={`Listening on 127.0.0.1:${info.claudePort}`}>
-          <Toggle label="Show Claude Code activity" checked={settings.claude} onChange={set('claude')} />
-        </Row>
-        <div className="prow prow--action">
-          <button className="link-btn" onClick={copyHooks}>
-            {copied ? 'Hook settings copied' : 'Copy Claude Code hook settings'}
-          </button>
-          <span className="prow__detail">Paste them into ~/.claude/settings.json, then start Claude Code.</span>
-        </div>
-      </div>
-      <p className="hint">The island shows the file Claude is editing, flags when it needs your permission, and tells you when it’s done.</p>
-    </>
-  );
-}
-
 function updateDetail(update, info) {
   switch (update?.state) {
     case 'checking':
@@ -376,7 +348,7 @@ function SystemSection({ settings, info }) {
       </Row>
       <div className="prow prow--action">
         <button className="link-btn link-btn--danger" onClick={() => bridge.quit()}>
-          Quit Dynamic Island
+          Quit Dynoland
         </button>
       </div>
     </div>
@@ -391,8 +363,6 @@ function SectionBody({ id, settings, info }) {
       return <AppearanceSection settings={settings} />;
     case 'apps':
       return <AppsSection settings={settings} />;
-    case 'claude':
-      return <ClaudeSection settings={settings} info={info} />;
     default:
       return <SystemSection settings={settings} info={info} />;
   }
@@ -400,10 +370,22 @@ function SectionBody({ id, settings, info }) {
 
 // --------------------------------------------------------------- layout
 
+// "Dyno" in white and "land" in the logo's blue-to-pink gradient.
+function Wordmark() {
+  return (
+    <span className="wordmark" aria-label="Dynoland">
+      <span aria-hidden="true">Dyno</span>
+      <span className="wordmark__land" aria-hidden="true">
+        land
+      </span>
+    </span>
+  );
+}
+
 export default function ControlPanel() {
   const settings = useSettings();
   const wide = useMediaQuery('(min-width: 820px)');
-  const [info, setInfo] = useState({ claudePort: 47821, packaged: false, version: '' });
+  const [info, setInfo] = useState({ packaged: false, version: '' });
   const [active, setActive] = useState('try');
   const mainRef = useRef(null);
 
@@ -423,16 +405,19 @@ export default function ControlPanel() {
   return (
     <div className={`cp ${wide ? 'cp--wide' : 'cp--narrow'}`}>
       <div className="cp__titlebar">
-        <span className="cp__titlebar-mark" aria-hidden="true" />
-        <span>Dynamic Island</span>
+        <img className="cp__titlebar-mark" src={logoMark} alt="" />
+        <span>Dynoland</span>
       </div>
 
       <div className="cp__body">
         {wide ? (
           <nav className="cp__nav" aria-label="Sections">
             <div className="cp__brand">
-              <span className="cp__brand-name">Dynamic Island</span>
-              <span className="cp__brand-version">{info.version ? `Version ${info.version}` : ''}</span>
+              <img className="cp__brand-mark" src={logoMark} alt="" />
+              <span className="cp__brand-name">
+                <Wordmark />
+              </span>
+              <span className="cp__brand-version">{info.version ? `Version ${info.version}` : 'Your dynamic island'}</span>
             </div>
             {SECTIONS.map((s) => (
               <button
@@ -461,8 +446,13 @@ export default function ControlPanel() {
           ) : (
             <div className="cp__page">
               <header className="page-header page-header--narrow">
-                <h1>Dynamic Island</h1>
-                <p>Try each activity, then choose how the island looks and which apps it shows.</p>
+                <div className="page-header__brand">
+                  <img className="page-header__mark" src={logoMark} alt="" />
+                  <h1>
+                    <Wordmark />
+                  </h1>
+                </div>
+                <p>Your dynamic island. Try each activity, then choose how it looks and which apps it shows.</p>
               </header>
               {SECTIONS.map((s) => (
                 <section key={s.id} id={`section-${s.id}`} aria-labelledby={`heading-${s.id}`}>

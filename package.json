@@ -1,8 +1,8 @@
 {
   "name": "dynamic-island-desktop",
-  "productName": "Dynamic Island Desktop",
-  "version": "1.2.2",
-  "description": "An iOS-inspired Dynamic Island overlay for Windows desktops.",
+  "productName": "Dynoland",
+  "version": "1.3.0",
+  "description": "Dynoland: your dynamic island for Windows.",
   "author": "Kailash Rajendran",
   "license": "MIT",
   "main": "electron/main.cjs",
@@ -31,7 +31,7 @@
   },
   "build": {
     "appId": "com.kailash.dynamicisland",
-    "productName": "Dynamic Island",
+    "productName": "Dynoland",
     "copyright": "Copyright \u00a9 2026 Kailash Rajendran",
     "directories": {
       "output": "release",
@@ -55,11 +55,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Dynamic Island",
-      "artifactName": "DynamicIsland-Setup-${version}.exe"
+      "shortcutName": "Dynoland",
+      "artifactName": "Dynoland-Setup-${version}.exe"
     },
     "portable": {
-      "artifactName": "DynamicIsland-Portable-${version}.exe"
+      "artifactName": "Dynoland-Portable-${version}.exe"
     },
     "extraResources": [
       {

@@ -1,4 +1,4 @@
-# Dynamic Island media helper (Windows PowerShell 5.1, ships with Windows 10/11).
+# Dynoland media helper (Windows PowerShell 5.1, ships with Windows 10/11).
 # Reads what is playing from the Windows media session API (the same source as
 # the volume flyout), so it works with Spotify, browsers (YouTube, YouTube Music),
 # Apple Music, Media Player and any app that shows up there.

@@ -66,21 +66,24 @@ export default function DynamicIsland() {
     ? { duration: 0.14, ease: 'easeOut' }
     : {
         type: 'spring',
-        visualDuration: (growing ? 0.5 : attached ? 0.5 : 0.42) * speed,
-        bounce: attached ? 0.12 : growing ? 0.28 : 0.2,
+        visualDuration: (growing ? 0.56 : attached ? 0.56 : 0.48) * speed,
+        bounce: attached ? 0.08 : growing ? 0.2 : 0.14,
       };
   // Vertical position never overshoots, so the island can't bounce past the
   // top edge of the screen; the landing bounce below is a separate squash.
-  const lift = reduce ? shape : { type: 'spring', visualDuration: 0.46 * speed, bounce: 0 };
+  const lift = reduce ? shape : { type: 'spring', visualDuration: 0.5 * speed, bounce: 0 };
   const islandTransition = reduce ? shape : { ...shape, y: lift };
 
+  // Content crossfades with opacity and scale only: both run on the GPU, so
+  // nothing has to be repainted while the shape is moving.
+  const ease = [0.22, 1, 0.36, 1];
   const enter = reduce
     ? { opacity: 1, transition: { duration: 0.12 } }
-    : { opacity: 1, scale: 1, filter: 'blur(0px)', transition: { delay: 0.07 * speed, duration: 0.3 * speed, ease: [0.2, 0.8, 0.2, 1] } };
-  const from = reduce ? { opacity: 0 } : { opacity: 0, scale: 0.9, filter: 'blur(8px)' };
+    : { opacity: 1, scale: 1, y: 0, transition: { delay: 0.06 * speed, duration: 0.36 * speed, ease } };
+  const from = reduce ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: -3 };
   const leave = reduce
     ? { opacity: 0, transition: { duration: 0.08 } }
-    : { opacity: 0, scale: 0.94, filter: 'blur(6px)', transition: { duration: 0.14 * speed } };
+    : { opacity: 0, scale: 0.97, transition: { duration: 0.16 * speed, ease: 'easeOut' } };
 
   // Idle bounce. At startup the semicircle grows out of the top edge; when an
   // activity ends, the shape glides into the semicircle and then settles with
@@ -193,7 +196,7 @@ export default function DynamicIsland() {
   if (!active && !home && !settings.showIdlePill) return null;
 
   const contentKey = mode === 'home' ? `home:${home}` : active ? `${active.id}:${mode}` : mode;
-  const hoverScale = mode === 'compact' && !reduce ? { scale: 1.035 } : undefined;
+  const hoverScale = mode === 'compact' && !reduce ? { scale: 1.025, transition: { type: 'spring', visualDuration: 0.3, bounce: 0.2 } } : undefined;
 
   return (
     <div
@@ -209,7 +212,7 @@ export default function DynamicIsland() {
             ref={islandRef}
             data-hit
             role="button"
-            aria-label={active ? `${active.type} activity` : 'Dynamic Island. Click to see features.'}
+            aria-label={active ? `${active.type} activity` : 'Dynoland. Click to see features.'}
             className={`island island--${mode} ${glass ? 'island--glass' : 'island--black'}`}
             initial={{ height: size.h, y, ...corners }}
             animate={{ height: size.h, y, ...corners }}

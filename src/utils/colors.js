@@ -4,4 +4,3 @@ export const ORANGE = '#ff9f0a';
 export const RED = '#ff453a';
 export const BLUE = '#0a84ff';
 export const YELLOW = '#ffd60a';
-export const CLAUDE = '#d97757';

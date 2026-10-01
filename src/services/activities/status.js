@@ -15,8 +15,8 @@ export function showStatus(variant, title, subtitle, duration) {
 
 export function runStatusDemo(variant) {
   if (variant === 'loading') {
-    showStatus('loading', 'Uploading build', 'dynamic-island-1.0.0.zip');
-    setTimeout(() => showStatus('success', 'Upload complete', 'dynamic-island-1.0.0.zip'), 2600);
+    showStatus('loading', 'Uploading build', 'project-build.zip');
+    setTimeout(() => showStatus('success', 'Upload complete', 'project-build.zip'), 2600);
     return;
   }
   const copy = {

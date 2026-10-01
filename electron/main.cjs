@@ -1,7 +1,7 @@
-// Dynamic Island Desktop — Electron main process
+// Dynoland — Electron main process
 // Owns: the transparent overlay window, click-through, tray, settings, the
 // control panel, and the bridges to Windows (media, notifications, clipboard,
-// wallpaper) plus the Claude Code hook server and automatic updates.
+// wallpaper) plus automatic updates.
 
 const {
   app,
@@ -17,7 +17,6 @@ const {
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
-const http = require('node:http');
 const { createMediaBridge } = require('./integrations/media.cjs');
 const { createNotificationWatcher } = require('./integrations/notifications.cjs');
 const { createBackdrop } = require('./integrations/backdrop.cjs');
@@ -32,7 +31,6 @@ const WIN_W = 600;
 const WIN_H = 280;
 const SIZE_SCALE = { small: 0.9, default: 1, large: 1.15 };
 
-const CLAUDE_PORT = 47821;
 const PANEL_SHORTCUT = 'CommandOrControl+Shift+D';
 
 const DEFAULT_SETTINGS = {
@@ -50,7 +48,6 @@ const DEFAULT_SETTINGS = {
   mutedApps: [],
   clipboard: true,
   battery: true,
-  claude: true,
   startWithWindows: false,
   islandHidden: false,
   firstRun: true,
@@ -62,7 +59,6 @@ let panelWin = null;
 let tray = null;
 let settings = { ...DEFAULT_SETTINGS };
 let clipboardTimer = null;
-let claudeServer = null;
 let media = null;
 let notifications = null;
 let backdrop = null;
@@ -91,6 +87,20 @@ function setStatus(key, value) {
 // ---------------------------------------------------------------- settings
 
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json');
+
+// Versions before 1.3.0 were called "Dynamic Island" and kept settings in a
+// folder of that name. Carry them over once.
+function migrateOldSettings() {
+  try {
+    const oldFile = path.join(app.getPath('appData'), 'Dynamic Island', 'settings.json');
+    if (!fs.existsSync(settingsFile()) && fs.existsSync(oldFile)) {
+      fs.mkdirSync(path.dirname(settingsFile()), { recursive: true });
+      fs.copyFileSync(oldFile, settingsFile());
+    }
+  } catch {
+    /* start with defaults */
+  }
+}
 
 function loadSettings() {
   try {
@@ -187,7 +197,7 @@ function createIslandWindow() {
     focusable: false, // clicks work, but the island never steals keyboard focus
     alwaysOnTop: true,
     show: false,
-    title: 'Dynamic Island',
+    title: 'Dynoland',
     webPreferences: {
       preload: preload(),
       contextIsolation: true,
@@ -248,7 +258,7 @@ function openPanel(section) {
     minWidth: 380,
     minHeight: 480,
     show: false,
-    title: 'Dynamic Island',
+    title: 'Dynoland',
     backgroundColor: '#000000',
     autoHideMenuBar: true,
     // Dark, native-looking title bar with the standard Windows buttons.
@@ -285,7 +295,7 @@ const trayIconPath = () => path.join(__dirname, 'assets', 'tray.png');
 function createTray() {
   const image = nativeImage.createFromPath(trayIconPath());
   tray = new Tray(image.isEmpty() ? nativeImage.createEmpty() : image);
-  tray.setToolTip('Dynamic Island');
+  tray.setToolTip('Dynoland');
   tray.on('click', () => openPanel());
   refreshTrayMenu();
 }
@@ -309,7 +319,7 @@ function refreshTrayMenu() {
       },
       { label: 'Check for updates', enabled: app.isPackaged, click: () => updater?.check() },
       { type: 'separator' },
-      { label: `Quit Dynamic Island`, click: () => app.quit() },
+      { label: 'Quit Dynoland', click: () => app.quit() },
     ]),
   );
 }
@@ -353,56 +363,6 @@ function openApp(appId) {
   spawn('explorer.exe', [`shell:AppsFolder\\${appId}`], { detached: true, stdio: 'ignore' }).unref();
 }
 
-// ------------------------------------------------------- Claude Code hooks
-
-function describeHookEvent(evt) {
-  const input = evt && typeof evt.tool_input === 'object' && evt.tool_input ? evt.tool_input : {};
-  const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : null);
-  return {
-    event: str(evt.hook_event_name, 40),
-    tool: str(evt.tool_name, 60),
-    file: str(input.file_path || input.notebook_path || input.path, 300),
-    command: str(input.command, 160),
-    pattern: str(input.pattern, 80),
-    description: str(input.description, 120),
-    message: str(evt.message, 240),
-    prompt: str(evt.prompt, 160),
-    sessionId: str(evt.session_id, 80),
-  };
-}
-
-function startClaudeServer() {
-  claudeServer = http.createServer((req, res) => {
-    // Browsers send an Origin header; Claude Code's curl hook does not.
-    if (req.headers.origin) {
-      res.writeHead(403);
-      return res.end();
-    }
-    if (req.method !== 'POST' || !req.url.startsWith('/claude')) {
-      res.writeHead(404);
-      return res.end();
-    }
-    let body = '';
-    req.setEncoding('utf8');
-    req.on('data', (chunk) => {
-      body += chunk;
-      if (body.length > 512 * 1024) req.destroy();
-    });
-    req.on('end', () => {
-      res.writeHead(204);
-      res.end();
-      if (!settings.claude) return;
-      try {
-        sendToIsland('claude:event', describeHookEvent(JSON.parse(body)));
-      } catch {
-        /* ignore malformed payloads */
-      }
-    });
-  });
-  claudeServer.on('error', (err) => console.warn(`Claude hook server (port ${CLAUDE_PORT}):`, err.message));
-  claudeServer.listen(CLAUDE_PORT, '127.0.0.1');
-}
-
 // ---------------------------------------------------------------------- IPC
 
 function registerIpc() {
@@ -417,7 +377,7 @@ function registerIpc() {
   ipcMain.handle('status:get', () => status);
   ipcMain.on('panel:command', (_e, command) => sendToIsland('island:command', command));
   ipcMain.on('panel:open', (_e, section) => openPanel(typeof section === 'string' ? section : undefined));
-  ipcMain.handle('app:info', () => ({ version: app.getVersion(), claudePort: CLAUDE_PORT, packaged: app.isPackaged, platform: process.platform }));
+  ipcMain.handle('app:info', () => ({ version: app.getVersion(), packaged: app.isPackaged, platform: process.platform }));
   ipcMain.on('app:quit', () => app.quit());
   ipcMain.on('app:open', (_e, appId) => openApp(appId));
   ipcMain.on('media:command', (_e, name) => media?.command(name));
@@ -439,12 +399,12 @@ if (!app.requestSingleInstanceLock()) {
 
   app.whenReady().then(() => {
     app.setAppUserModelId(APP_ID);
+    migrateOldSettings();
     loadSettings();
     registerIpc();
     createIslandWindow();
     createTray();
     syncClipboardWatcher();
-    startClaudeServer();
     applyLoginItem();
 
     media = createMediaBridge({ send: sendToIsland, setStatus: (s) => setStatus('media', s) });
@@ -489,7 +449,6 @@ if (!app.requestSingleInstanceLock()) {
   app.on('will-quit', () => {
     globalShortcut.unregisterAll();
     clearInterval(clipboardTimer);
-    claudeServer?.close();
     media?.dispose();
     notifications?.dispose();
     backdrop?.dispose();

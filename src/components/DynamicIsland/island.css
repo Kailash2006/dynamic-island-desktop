@@ -17,6 +17,7 @@
 /* Squash-and-stretch wrapper for the idle bounce. */
 .island-bouncer {
   transform-origin: 50% 0;
+  will-change: transform;
 }
 
 /* ---------------------------------------------------------------- island */
@@ -29,6 +30,7 @@
   pointer-events: auto;
   transform-origin: 50% 0;
   isolation: isolate;
+  will-change: transform;
 }
 
 .island--black {
@@ -74,6 +76,7 @@
   left: 50%;
   z-index: 1;
   transform-origin: 50% 30%;
+  will-change: transform, opacity;
 }
 
 /* ------------------------------------------------------------- bubble */
@@ -499,41 +502,6 @@
   place-items: center;
 }
 
-/* ---------------------------------------------------------------- claude */
-
-.claude-glyph {
-  display: grid;
-  place-items: center;
-}
-.claude-glyph--busy {
-  animation: spin 3.2s linear infinite;
-}
-.claude-glyph--waiting {
-  animation: breathe 1.2s ease-in-out infinite;
-}
-.panel--claude {
-  gap: 6px;
-  justify-content: flex-start;
-  padding: 16px 22px;
-}
-.claude__steps {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 12px;
-  color: var(--label-3);
-}
-.claude__steps li {
-  display: block;
-}
-.claude__tick {
-  color: var(--green);
-  margin-right: 7px;
-}
-
 @keyframes spin {
   to { rotate: 360deg; }
 }
@@ -543,8 +511,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .claude-glyph--busy,
-  .claude-glyph--waiting,
   .bigbatt__fill,
   .tile--attention,
   .ibtn--ringing {
@@ -553,8 +519,6 @@
 }
 
 /* The in-app "Reduce motion" setting mirrors the system preference. */
-.reduce-motion .claude-glyph--busy,
-.reduce-motion .claude-glyph--waiting,
 .reduce-motion .bigbatt__fill,
 .reduce-motion .tile--attention,
 .reduce-motion .ibtn--ringing,
@@ -585,7 +549,7 @@
 }
 .home__grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
 }
 .feature {

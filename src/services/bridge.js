@@ -16,7 +16,6 @@ export const DEFAULT_SETTINGS = {
   mutedApps: [],
   clipboard: true,
   battery: true,
-  claude: true,
   startWithWindows: false,
   islandHidden: false,
   firstRun: false,
@@ -25,7 +24,7 @@ export const DEFAULT_SETTINGS = {
 const noop = () => () => {};
 
 function createBrowserBridge() {
-  const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('dynamic-island') : null;
+  const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('dynoland') : null;
   const subs = { command: new Set(), settings: new Set(), section: new Set() };
   let settings = { ...DEFAULT_SETTINGS };
   const subscribe = (kind) => (fn) => {
@@ -57,7 +56,7 @@ function createBrowserBridge() {
       glass: { state: 'unsupported' },
       update: { state: 'unavailable' },
     }),
-    getInfo: async () => ({ version: 'preview', claudePort: 47821, packaged: false, platform: 'browser' }),
+    getInfo: async () => ({ version: 'preview', packaged: false, platform: 'browser' }),
     sendCommand(command) {
       dispatch('command', command);
       channel?.postMessage({ kind: 'command', payload: command });
@@ -74,7 +73,6 @@ function createBrowserBridge() {
     onPanelSection: subscribe('section'),
     onStatus: noop,
     onClipboard: noop,
-    onClaude: noop,
     onMedia: noop,
     onMediaThumb: noop,
     onNotification: noop,

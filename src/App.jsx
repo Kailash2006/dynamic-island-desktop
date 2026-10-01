@@ -7,7 +7,6 @@ import { bridge } from './services/bridge.js';
 import { handleCommand } from './services/commands.js';
 import { initBattery } from './services/activities/battery.js';
 import { showClipboard } from './services/activities/clipboard.js';
-import { handleClaudeEvent } from './services/activities/claude.js';
 import { handleMediaThumb, handleMediaUpdate } from './services/activities/media.js';
 import { handleAppNotification, handleNotificationRemoved } from './services/activities/appNotifications.js';
 import { backdropStore, initStatus } from './services/stores.js';
@@ -21,7 +20,6 @@ function IslandApp() {
     const off = [
       bridge.onCommand(handleCommand),
       bridge.onClipboard((payload) => settingsStore.get().clipboard && showClipboard(payload)),
-      bridge.onClaude((event) => settingsStore.get().claude && handleClaudeEvent(event)),
       bridge.onMedia(handleMediaUpdate),
       bridge.onMediaThumb(handleMediaThumb),
       bridge.onNotification(handleAppNotification),

@@ -9,7 +9,7 @@ const route = hash.startsWith('panel') ? 'panel' : 'island';
 document.body.classList.add(`route-${route}`);
 // On Windows the panel draws its own title bar area next to the native buttons.
 if (hash === 'panel-overlay') document.body.classList.add('has-titlebar-overlay');
-document.title = route === 'panel' ? 'Dynamic Island' : 'Dynamic Island overlay';
+document.title = route === 'panel' ? 'Dynoland' : 'Dynoland overlay';
 
 settingsStore.init();
 

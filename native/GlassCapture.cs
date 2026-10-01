@@ -1,4 +1,4 @@
-// Dynamic Island glass helper. Compiled at startup by Windows PowerShell
+// Dynoland glass helper. Compiled at startup by Windows PowerShell
 // (Add-Type), so it must stay within C# 5 syntax.
 //
 // The island can't see through its own window, so this helper finds the app

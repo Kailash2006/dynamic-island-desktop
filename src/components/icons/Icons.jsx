@@ -115,13 +115,6 @@ export const WarningIcon = (p) => (
   </Svg>
 );
 
-// A generic eight-point spark used for the Claude Code activity.
-export const SparkIcon = (p) => (
-  <Svg {...p}>
-    <path d="M12 2.5v19M2.5 12h19M5.3 5.3l13.4 13.4M18.7 5.3 5.3 18.7" {...stroke} strokeWidth={2.5} />
-  </Svg>
-);
-
 export const NoteIcon = (p) => (
   <Svg {...p}>
     <path d="M9 18.5V5.8a1 1 0 0 1 .78-.98l9-2a1 1 0 0 1 1.22.98V16" {...stroke} />

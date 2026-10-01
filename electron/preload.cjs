@@ -31,7 +31,6 @@ contextBridge.exposeInMainWorld('island', {
   onCommand: listen('island:command'),
   onPanelSection: listen('panel:section'),
   onClipboard: listen('clipboard:changed'),
-  onClaude: listen('claude:event'),
   onMedia: listen('media:update'),
   onMediaThumb: listen('media:thumb'),
   onNotification: listen('notification:new'),

@@ -1,4 +1,4 @@
-# Dynamic Island glass helper: compiles GlassCapture.cs (built into Windows
+# Dynoland glass helper: compiles GlassCapture.cs (built into Windows
 # PowerShell 5.1, no install needed) and serves capture requests over stdin.
 $ErrorActionPreference = 'Stop'
 try {

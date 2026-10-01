@@ -73,8 +73,10 @@ function createBackdrop({ getWindow, send, setStatus }) {
     return w && !w.isDestroyed() ? w : null;
   };
 
+  let lastLayers = [];
   function publish(layers) {
-    send('backdrop:update', { url: wallpaperUrl, layers: layers ?? [] });
+    lastLayers = layers ?? [];
+    send('backdrop:update', { url: wallpaperUrl, layers: lastLayers });
   }
 
   // ------------------------------------------------------------- wallpaper
@@ -267,10 +269,12 @@ function createBackdrop({ getWindow, send, setStatus }) {
       islandSize = size;
       if (faster && !pending) schedule(60);
     },
+    // Re-send what we have (e.g. after the island page reloads), then refresh.
     refresh() {
+      if (mode === 'off') return;
       refreshWallpaper(true);
+      publish(lastLayers);
       if (mode === 'apps') schedule(100);
-      else if (mode === 'wallpaper') publish();
     },
     dispose: stopAll,
   };

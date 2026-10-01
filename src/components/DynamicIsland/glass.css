@@ -35,6 +35,9 @@
   background-repeat: no-repeat;
   transform-origin: 50% 6%;
   filter: blur(12px) saturate(1.9) brightness(1.06);
+  /* Its own GPU layer: the blur is drawn once, then only moved and clipped. */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 /* A narrow ring that shows the backdrop magnified more: light bending at the edge. */
@@ -91,7 +94,6 @@
   background:
     radial-gradient(90% 75% at 22% -18%, rgba(255, 255, 255, 0.26), transparent 62%),
     radial-gradient(70% 60% at 88% 125%, rgba(255, 255, 255, 0.1), transparent 70%);
-  mix-blend-mode: screen;
 }
 
 /* Hairline rim whose brightness varies around the shape, like a specular edge. */

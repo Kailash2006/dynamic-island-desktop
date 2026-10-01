@@ -1,28 +1,28 @@
-# Dynamic Island Desktop
+<p align="center"><img src="docs/logo.png" alt="Dynoland, your dynamic island" width="560"></p>
 
-A Dynamic Island–style overlay for Windows, built with Electron, React and Motion. A black pill sits at the top of your screen, shows live activities (music, timers, downloads, calls, charging, Claude Code), and morphs between a compact and an expanded state with spring animations.
+# Dynoland
 
-![Island states in liquid glass: feature menu, now playing, WhatsApp call and timer](docs/preview.png)
+Dynoland is a dynamic island for Windows, built with Electron, React and Motion. A small glass semicircle sits at the top of your screen; it shows what's playing, your notifications and calls, timers and more, and morphs between shapes with spring animations.
 
-Inspired by Apple's Dynamic Island. This is an independent project and is not affiliated with Apple.
+![Island states: feature menu, now playing, a WhatsApp call and a timer](docs/preview.png)
 
 ## Run it
 
 Two ready-made builds are produced in `release/`:
 
-- **DynamicIsland-Setup-1.2.2.exe** installs the app with Start menu and desktop shortcuts, supports "Start with Windows", and updates itself. Recommended. Running it over an older version upgrades it and keeps your settings.
-- **DynamicIsland-Portable-1.2.2.exe** runs without installing. It starts a little slower and doesn't update itself.
+- **Dynoland-Setup-1.3.0.exe** installs the app with Start menu and desktop shortcuts, supports "Start with Windows", and updates itself. Recommended. Running it over an older version upgrades it and keeps your settings.
+- **Dynoland-Portable-1.3.0.exe** runs without installing. It starts a little slower and doesn't update itself.
 
 The builds are not code-signed, so Windows SmartScreen will warn the first time. Click **More info → Run anyway**.
 
-Once running, a small semicircle hangs from the top-center of your main display and the app sits in the system tray. Press **Ctrl+Shift+D** (or click the tray icon) to open the control panel.
+Once running, a small semicircle hangs from the top-center of your main display and Dynoland sits in the system tray. Press **Ctrl+Shift+D** (or click the tray icon) to open the control panel.
 
 ## Using the island
 
 | Action | Result |
 |---|---|
 | Hover the idle semicircle | Opens into a notch with the time and battery |
-| Click it while idle | Opens the feature menu: timer, music, clipboard, alerts, Claude, settings |
+| Click it while idle | Opens the feature menu: timer, music, clipboard, alerts, settings |
 | Right-click it any time | Opens the feature menu, even while something is running |
 | Click a running activity | Expands it |
 | Move the pointer away | Collapses it after a moment |
@@ -52,7 +52,7 @@ Known limits: scrolling inside the same app isn't detected instantly, so the gla
 
 For an app to appear, it has to be allowed to show notifications in Windows Settings → System → Notifications.
 
-**Real:** media, notifications, calls, copied text, charging and low battery, the timer, and Claude Code. **Demo only** (Try it section): the demo music player, downloads, and the phone call.
+**Real:** media, notifications, calls, copied text, charging and low battery, and the timer. **Demo only** (Try it section): the demo music player, downloads, and the phone call.
 
 ## Updates
 
@@ -64,17 +64,11 @@ Releases are built on GitHub by `.github/workflows/release.yml`, so nothing larg
 
 1. Raise `version` in `package.json` (for example 1.2.2 → 1.2.3).
 2. Zip the project without `node_modules`, `dist`, `release` and `.github`, name it `source.zip`, and upload it to the repository root (**Add file → Upload files**).
-3. The Release workflow unpacks it into the repository, builds the installer on a Windows machine, and publishes release `v1.2.3` with the installer, `latest.yml` and the blockmap.
+3. The Release workflow replaces the repository's files with the zip's contents (so deleted files disappear too), builds the installer on a Windows machine, and publishes release `v1.2.3` with the installer, `latest.yml` and the blockmap.
 
 If the version in `package.json` already has a release, the workflow skips publishing. You can also start it from **Actions → Release → Run workflow**.
 
-Versions 1.0.0 to 1.2.0 can't update themselves, so install 1.2.1 or later once by hand. From then on updates are automatic. The portable version never updates itself.
-
-## Claude Code activity
-
-The app listens on `http://127.0.0.1:47821/claude` (local machine only; requests from web pages are rejected). Claude Code hooks send their events there, and the island shows what Claude is doing, flags when it needs your permission, and confirms when it finishes.
-
-To connect it, open the control panel and click **Copy Claude Code hook settings**, then merge the result into `~/.claude/settings.json`. The same snippet is in `claude-hooks.example.json`. Each hook is a one-line `curl` with a 1-second timeout, so Claude Code never waits on the island, even when it isn't running.
+Versions 1.0.0 to 1.2.0 (then called Dynamic Island) can't update themselves, so install 1.2.1 or later once by hand. From then on updates are automatic. The portable version never updates itself.
 
 ## Develop
 
@@ -100,7 +94,7 @@ Run these on Windows. (Building Windows targets from Linux or macOS also works b
 
 ```
 electron/
-  main.cjs          overlay window, click-through, tray, settings, panel, Claude hook server
+  main.cjs          overlay window, click-through, tray, settings, control panel
   preload.cjs       the only bridge between Electron and React
   updater.cjs       automatic updates from GitHub Releases
   integrations/
@@ -119,13 +113,13 @@ src/
     MediaActivity/  AppCallActivity/
     ActivitySwitcher/   the split-off circle for a second activity
     MusicActivity/  TimerActivity/  ChargingActivity/  DownloadActivity/
-    CallActivity/   ClaudeActivity/ NotificationActivity/ ClipboardActivity/
+    CallActivity/   NotificationActivity/ ClipboardActivity/
     StatusActivity/ IdleActivity/
     ControlPanel/       demo buttons and settings (Ctrl+Shift+D)
     registry.js         sizes and views for every activity type
   services/
     activityManager.js  the store: show, update, remove, focus, expire
-    activities/         controllers that feed activities (timer, battery, Claude…)
+    activities/         controllers that feed activities (timer, battery, media…)
     commands.js         routes control-panel buttons to controllers
   hooks/  utils/  styles/
 build/              app icons used by electron-builder
