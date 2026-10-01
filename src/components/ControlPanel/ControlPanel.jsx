@@ -31,7 +31,9 @@ const DEMOS = [
   { label: 'Download', color: '#0a84ff', icon: <ArrowDownIcon size={15} />, command: { type: 'download' } },
   { label: 'Notification', color: '#25d366', icon: <BellIcon size={15} />, command: { type: 'notification' } },
   { label: 'WhatsApp call', color: '#25d366', icon: <PhoneIcon size={15} />, command: { type: 'app-call' } },
-  { label: 'Phone call', color: '#30d158', icon: <PhoneIcon size={15} />, command: { type: 'call' } },
+  { label: 'Phone message', color: '#0a84ff', icon: <BellIcon size={15} />, command: { type: 'phone-notification' } },
+  { label: 'Phone call', color: '#0a84ff', icon: <PhoneIcon size={15} />, command: { type: 'phone-call' } },
+  { label: 'Call (demo)', color: '#30d158', icon: <PhoneIcon size={15} />, command: { type: 'call' } },
   { label: 'Copied text', color: '#636366', icon: <ClipboardIcon size={15} />, command: { type: 'clipboard' } },
   { label: 'Loading', color: '#636366', icon: <Spinner size={14} />, command: { type: 'status', variant: 'loading' } },
   { label: 'Success', color: '#30d158', icon: <span className="glyph-check">✓</span>, command: { type: 'status', variant: 'success' } },
@@ -43,6 +45,7 @@ const SECTIONS = [
   { id: 'try', label: 'Try it', icon: <PlayIcon size={14} />, blurb: 'Show any activity on the island right now.' },
   { id: 'look', label: 'Appearance', icon: <InfoIcon size={16} />, blurb: 'Material, size and motion.' },
   { id: 'apps', label: 'Connected apps', icon: <NoteIcon size={15} />, blurb: 'Music, notifications and calls from apps on this PC.' },
+  { id: 'phone', label: 'Phone', icon: <PhoneIcon size={14} />, blurb: 'Show your phone’s messages, notifications and calls on the island.' },
   { id: 'system', label: 'System', icon: <GearIcon size={16} />, blurb: 'Startup, updates and quitting.' },
 ];
 
@@ -302,6 +305,111 @@ function AppsSection({ settings }) {
   );
 }
 
+function ago(at) {
+  const minutes = Math.round((Date.now() - at) / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  return hours < 24 ? `${hours} h ago` : 'over a day ago';
+}
+
+function Step({ n, title, detail, action }) {
+  return (
+    <div className="prow prow--step">
+      <span className="step-num" aria-hidden="true">
+        {n}
+      </span>
+      <div className="prow__text">
+        <span className="prow__title">{title}</span>
+        {detail ? <span className="prow__detail">{detail}</span> : null}
+      </div>
+      {action ? <div className="prow__control">{action}</div> : null}
+    </div>
+  );
+}
+
+// Windows can't read a phone's notifications over Bluetooth on its own, so the
+// connection goes through Microsoft Phone Link; Dynoland shows what it receives.
+function PhoneSection({ settings }) {
+  const phone = useStore(statusStore).phone ?? {};
+  const ready = phone.state === 'ready';
+  const unsupported = phone.state === 'unsupported';
+  const headline = unsupported ? 'Phone notifications work on Windows' : ready ? 'Phone Link is installed' : 'Phone Link isn’t installed yet';
+  const detail = phone.lastAt
+    ? `Last phone notification ${ago(phone.lastAt)}${phone.lastApp ? ` from ${phone.lastApp}` : ''}`
+    : ready
+      ? 'Waiting for the first notification from your phone'
+      : 'Phone Link connects your phone to this PC over Bluetooth';
+  return (
+    <>
+      <div className="group">
+        <div className="prow">
+          <span className={`phone-badge ${phone.lastAt ? 'is-live' : ''}`} aria-hidden="true">
+            <PhoneIcon size={18} />
+          </span>
+          <div className="prow__text">
+            <span className="prow__title">{headline}</span>
+            <span className="prow__detail">{detail}</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 className="subhead">Connect your phone</h3>
+      <div className="group">
+        <Step
+          n={1}
+          title="Turn on Bluetooth"
+          detail="On this PC and on your phone."
+          action={
+            <button className="small-btn" onClick={() => bridge.openSystem('bluetooth')} disabled={unsupported}>
+              Bluetooth settings
+            </button>
+          }
+        />
+        <Step
+          n={2}
+          title="Link your phone in Phone Link"
+          detail="Android: install Link to Windows on the phone and scan the code. iPhone: choose iPhone and pair over Bluetooth."
+          action={
+            <button className="small-btn small-btn--accent" onClick={() => bridge.openSystem('phone-link')} disabled={unsupported}>
+              {ready ? 'Open Phone Link' : 'Get Phone Link'}
+            </button>
+          }
+        />
+        <Step
+          n={3}
+          title="Allow notifications"
+          detail="Turn them on in Phone Link. On iPhone, also open Bluetooth, tap ⓘ next to this PC and turn on Show Notifications."
+        />
+        <Step
+          n={4}
+          title="Keep Phone Link notifications on in Windows"
+          detail="Dynoland shows what Phone Link shows as Windows notifications."
+          action={
+            <button className="small-btn" onClick={() => bridge.openSystem('notification-settings')} disabled={unsupported}>
+              Notification settings
+            </button>
+          }
+        />
+      </div>
+
+      <h3 className="subhead">On the island</h3>
+      <div className="group">
+        <Row title="Phone notifications" detail="Messages and app notifications, with the original app and sender’s photo">
+          <Toggle label="Phone notifications" checked={settings.phone} onChange={set('phone')} disabled={!settings.notifications} />
+        </Row>
+        <Row title="Phone calls" detail="Shows the caller; answer in Phone Link">
+          <Toggle label="Phone calls" checked={settings.calls} onChange={set('calls')} disabled={!settings.notifications} />
+        </Row>
+      </div>
+      <p className="hint">
+        Windows can’t read a phone’s notifications over Bluetooth by itself, so Dynoland uses Microsoft Phone Link, which comes with
+        Windows 11, for the connection. Everything Phone Link receives appears on the island. Try it in Try it → Phone message.
+      </p>
+    </>
+  );
+}
+
 function updateDetail(update, info) {
   switch (update?.state) {
     case 'checking':
@@ -363,6 +471,8 @@ function SectionBody({ id, settings, info }) {
       return <AppearanceSection settings={settings} />;
     case 'apps':
       return <AppsSection settings={settings} />;
+    case 'phone':
+      return <PhoneSection settings={settings} />;
     default:
       return <SystemSection settings={settings} info={info} />;
   }

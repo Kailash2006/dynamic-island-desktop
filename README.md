@@ -10,8 +10,8 @@ Dynoland is a dynamic island for Windows, built with Electron, React and Motion.
 
 Two ready-made builds are produced in `release/`:
 
-- **Dynoland-Setup-1.3.0.exe** installs the app with Start menu and desktop shortcuts, supports "Start with Windows", and updates itself. Recommended. Running it over an older version upgrades it and keeps your settings.
-- **Dynoland-Portable-1.3.0.exe** runs without installing. It starts a little slower and doesn't update itself.
+- **Dynoland-Setup-1.4.0.exe** installs the app with Start menu and desktop shortcuts, supports "Start with Windows", and updates itself. Recommended. Running it over an older version upgrades it and keeps your settings.
+- **Dynoland-Portable-1.4.0.exe** runs without installing. It starts a little slower and doesn't update itself.
 
 The builds are not code-signed, so Windows SmartScreen will warn the first time. Click **More info → Run anyway**.
 
@@ -22,7 +22,7 @@ Once running, a small semicircle hangs from the top-center of your main display 
 | Action | Result |
 |---|---|
 | Hover the idle semicircle | Opens into a notch with the time and battery |
-| Click it while idle | Opens the feature menu: timer, music, clipboard, alerts, settings |
+| Click it while idle | Opens the feature menu: timer, music, clipboard, alerts, phone, settings |
 | Right-click it any time | Opens the feature menu, even while something is running |
 | Click a running activity | Expands it |
 | Move the pointer away | Collapses it after a moment |
@@ -52,7 +52,9 @@ Known limits: scrolling inside the same app isn't detected instantly, so the gla
 
 For an app to appear, it has to be allowed to show notifications in Windows Settings → System → Notifications.
 
-**Real:** media, notifications, calls, copied text, charging and low battery, and the timer. **Demo only** (Try it section): the demo music player, downloads, and the phone call.
+**Your phone.** Windows can't read a phone's notifications over Bluetooth by itself, so Dynoland uses Microsoft Phone Link (included with Windows 11) for the connection. Phone Link pairs with Android (through the Link to Windows app) or iPhone over Bluetooth and turns the phone's messages, notifications and calls into Windows notifications; Dynoland shows them with the original app, the sender's photo and a phone badge. The **Phone** section of the control panel walks through the setup with buttons for Bluetooth settings and Phone Link. Calls show the caller with an **Open Phone Link** button; answering happens in Phone Link.
+
+**Real:** media, notifications and calls (from this PC and your phone), copied text, charging and low battery, and the timer. **Demo only** (Try it section): the demo music player, downloads, and the phone call.
 
 ## Updates
 

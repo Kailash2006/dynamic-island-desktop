@@ -13,6 +13,7 @@ const {
   nativeImage,
   globalShortcut,
   clipboard,
+  shell,
 } = require('electron');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
@@ -43,6 +44,7 @@ const DEFAULT_SETTINGS = {
   showIdlePill: true,
   media: true,
   notifications: true,
+  phone: true,
   calls: true,
   showMessageText: true,
   mutedApps: [],
@@ -65,7 +67,13 @@ let backdrop = null;
 let updater = null;
 
 // Live status of each integration, shown in the control panel.
-let status = { media: { state: 'off' }, notifications: { state: 'off' }, glass: { state: 'off' }, update: { state: 'idle' } };
+let status = {
+  media: { state: 'off' },
+  notifications: { state: 'off' },
+  phone: { state: 'unsupported' },
+  glass: { state: 'off' },
+  update: { state: 'idle' },
+};
 
 // ---------------------------------------------------------------- helpers
 
@@ -351,6 +359,35 @@ function syncClipboardWatcher() {
   }, 700);
 }
 
+// ------------------------------------------------------------------- phone
+//
+// Windows can't read a phone's notifications over Bluetooth by itself; it
+// needs a companion. Microsoft Phone Link (built into Windows 11) pairs with
+// Android and iPhone over Bluetooth and shows the phone's notifications,
+// messages and calls as Windows notifications, which Dynoland already mirrors.
+
+const PHONE_LINK_PFN = 'Microsoft.YourPhone_8wekyb3d8bbwe';
+const PHONE_LINK_STORE = 'ms-windows-store://pdp/?productid=9NMPJ99VJBWV';
+
+function phoneLinkInstalled() {
+  const local = process.env.LOCALAPPDATA;
+  return process.platform === 'win32' && Boolean(local) && fs.existsSync(path.join(local, 'Packages', PHONE_LINK_PFN));
+}
+
+function refreshPhoneStatus(extra = {}) {
+  const state = process.platform !== 'win32' ? 'unsupported' : phoneLinkInstalled() ? 'ready' : 'missing';
+  setStatus('phone', { ...status.phone, ...extra, state });
+}
+
+function openSystem(target) {
+  if (process.platform !== 'win32') return;
+  if (target === 'bluetooth') shell.openExternal('ms-settings:bluetooth');
+  else if (target === 'phone-link') {
+    if (phoneLinkInstalled()) openApp(`${PHONE_LINK_PFN}!App`);
+    else shell.openExternal(PHONE_LINK_STORE);
+  } else if (target === 'notification-settings') shell.openExternal('ms-settings:notifications');
+}
+
 // --------------------------------------------------------------- open apps
 
 function openApp(appId) {
@@ -374,7 +411,14 @@ function registerIpc() {
   ipcMain.on('island:size', (_e, size) => backdrop?.setIslandSize(size));
   ipcMain.handle('settings:get', () => settings);
   ipcMain.handle('settings:set', (_e, key, value) => updateSetting(key, value));
-  ipcMain.handle('status:get', () => status);
+  ipcMain.handle('status:get', () => {
+    refreshPhoneStatus();
+    return status;
+  });
+  ipcMain.on('system:open', (_e, target) => {
+    if (typeof target === 'string') openSystem(target);
+    setTimeout(refreshPhoneStatus, 4000);
+  });
   ipcMain.on('panel:command', (_e, command) => sendToIsland('island:command', command));
   ipcMain.on('panel:open', (_e, section) => openPanel(typeof section === 'string' ? section : undefined));
   ipcMain.handle('app:info', () => ({ version: app.getVersion(), packaged: app.isPackaged, platform: process.platform }));
@@ -413,6 +457,7 @@ if (!app.requestSingleInstanceLock()) {
       setStatus: (s) => setStatus('notifications', s),
       isMuted: (appId) => settings.mutedApps.includes(appId),
       ownAppId: APP_ID,
+      onPhoneNotification: (app) => refreshPhoneStatus({ lastAt: Date.now(), lastApp: app }),
     });
     backdrop = createBackdrop({ getWindow: () => islandWin, send: sendToIsland, setStatus: (s) => setStatus('glass', s) });
     updater = createUpdater({
@@ -420,6 +465,7 @@ if (!app.requestSingleInstanceLock()) {
       onReady: (version) => sendToIsland('island:command', { type: 'update-ready', version }),
     });
 
+    refreshPhoneStatus();
     media.setEnabled(settings.media);
     notifications.setEnabled(settings.notifications);
     syncBackdrop();

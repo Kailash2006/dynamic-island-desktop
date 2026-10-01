@@ -549,7 +549,7 @@
 }
 .home__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
 }
 .feature {
@@ -718,4 +718,35 @@
 .bubble__icon {
   display: grid;
   place-items: center;
+}
+
+/* --------------------------------------------------- sender / phone tiles */
+
+.sender-tile {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.sender-tile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sender-tile__badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 0 0 2px #000;
+}
+.island--glass .sender-tile__badge {
+  box-shadow: 0 0 0 2px rgba(20, 20, 24, 0.9);
 }

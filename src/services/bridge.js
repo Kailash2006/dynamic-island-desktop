@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS = {
   showIdlePill: true,
   media: true,
   notifications: true,
+  phone: true,
   calls: true,
   showMessageText: true,
   mutedApps: [],
@@ -53,6 +54,7 @@ function createBrowserBridge() {
     getStatus: async () => ({
       media: { state: 'unsupported' },
       notifications: { state: 'unsupported' },
+      phone: { state: 'unsupported' },
       glass: { state: 'unsupported' },
       update: { state: 'unavailable' },
     }),
@@ -63,6 +65,7 @@ function createBrowserBridge() {
     },
     openPanel() {},
     openApp() {},
+    openSystem() {},
     mediaCommand() {},
     writeClipboard: (text) => navigator.clipboard?.writeText(text),
     checkForUpdates() {},

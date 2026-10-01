@@ -1,6 +1,7 @@
 import { bridge } from '../../services/bridge.js';
 import { island } from '../../services/activityManager.js';
 import { CloseIcon, OpenIcon, PhoneIcon } from '../icons/Icons.jsx';
+import { SenderTile } from '../NotificationActivity/NotificationActivity.jsx';
 
 // An incoming call from another app (WhatsApp, Teams…). Answering happens in
 // that app, so the island offers to bring it to the front.
@@ -11,9 +12,13 @@ export function AppCallBanner({ a }) {
   };
   return (
     <div className="banner">
-      <span className="app-tile app-tile--call" style={{ background: a.color }} aria-hidden="true">
-        <PhoneIcon size={20} />
-      </span>
+      {a.icon ? (
+        <SenderTile a={a} size={46} radius={23} />
+      ) : (
+        <span className="app-tile app-tile--call" style={{ background: a.color }} aria-hidden="true">
+          <PhoneIcon size={20} />
+        </span>
+      )}
       <div className="stack grow">
         <span className="t-sub truncate">{a.detail}</span>
         <span className="t-title t-lg truncate">{a.name}</span>

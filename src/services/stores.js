@@ -24,6 +24,7 @@ export const useStore = (store) => useSyncExternalStore(store.subscribe, store.g
 export const statusStore = createStore({
   media: { state: 'off' },
   notifications: { state: 'off' },
+  phone: { state: 'unsupported' },
   glass: { state: 'off' },
   update: { state: 'idle' },
 });

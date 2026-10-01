@@ -8,7 +8,8 @@ import { clipboardHistory, notificationHistory, statusStore, useStore } from '..
 import { useSettings } from '../../services/settings.js';
 import { useNow } from '../../hooks/useNow.js';
 import { BatteryGlyph } from '../shared/Primitives.jsx';
-import { BellIcon, ChevronLeftIcon, ClipboardIcon, GearIcon, NoteIcon, TimerIcon } from '../icons/Icons.jsx';
+import { BellIcon, ChevronLeftIcon, ClipboardIcon, GearIcon, NoteIcon, PhoneIcon, TimerIcon } from '../icons/Icons.jsx';
+import { SenderTile } from '../NotificationActivity/NotificationActivity.jsx';
 import { GREEN } from '../../utils/colors.js';
 
 // What the island can do, shown when you click it while nothing is running
@@ -20,11 +21,19 @@ function openMusic() {
   else island.openHome('music');
 }
 
+// Your phone, through Phone Link: open it, or set it up in the control panel.
+function openPhone() {
+  if (statusStore.get().phone?.state === 'ready') bridge.openSystem('phone-link');
+  else bridge.openPanel('phone');
+  island.closeHome();
+}
+
 const FEATURES = [
   { id: 'timer', label: 'Timer', color: '#ff9f0a', icon: <TimerIcon size={20} />, run: () => island.openHome('timer') },
   { id: 'music', label: 'Music', color: '#ff375f', icon: <NoteIcon size={19} />, run: openMusic },
   { id: 'clipboard', label: 'Clipboard', color: '#64d2ff', icon: <ClipboardIcon size={19} />, run: () => island.openHome('clipboard') },
   { id: 'alerts', label: 'Alerts', color: '#ff453a', icon: <BellIcon size={19} />, run: () => island.openHome('alerts') },
+  { id: 'phone', label: 'Phone', color: '#0a84ff', icon: <PhoneIcon size={18} />, run: openPhone },
   {
     id: 'settings',
     label: 'Settings',
@@ -179,9 +188,7 @@ function HomeAlerts() {
         <div className="list">
           {items.map((item) => (
             <button key={item.key} className="list__row" onClick={() => item.appId && bridge.openApp(item.appId)}>
-              <span className="list__icon list__icon--app" style={{ background: item.color }}>
-                {item.app.slice(0, 1)}
-              </span>
+              <SenderTile a={{ ...item, glyph: item.app.slice(0, 1) }} size={28} radius={8} />
               <span className="stack grow">
                 <span className="list__title truncate">{item.title}</span>
                 <span className="t-sub truncate">{item.body}</span>

@@ -7,7 +7,7 @@ import { showCharging, batteryStore } from './activities/battery.js';
 import { showSampleNotification } from './activities/notification.js';
 import { runStatusDemo, showStatus } from './activities/status.js';
 import { showClipboard } from './activities/clipboard.js';
-import { showDemoAppCall } from './activities/appNotifications.js';
+import { showDemoAppCall, showDemoPhoneCall, showDemoPhoneNotification } from './activities/appNotifications.js';
 
 // Commands arrive from the control panel (via the main process).
 export function handleCommand(command) {
@@ -26,6 +26,10 @@ export function handleCommand(command) {
       return call.incoming();
     case 'app-call':
       return showDemoAppCall();
+    case 'phone-notification':
+      return showDemoPhoneNotification();
+    case 'phone-call':
+      return showDemoPhoneCall();
     case 'home':
       return island.openHome(command.view ?? 'main');
     case 'update-ready':

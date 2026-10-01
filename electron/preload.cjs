@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('island', {
   sendCommand: (command) => ipcRenderer.send('panel:command', command),
   openPanel: (section) => ipcRenderer.send('panel:open', section),
   openApp: (appId) => ipcRenderer.send('app:open', appId),
+  openSystem: (target) => ipcRenderer.send('system:open', target),
   mediaCommand: (name) => ipcRenderer.send('media:command', name),
   writeClipboard: (text) => ipcRenderer.send('clipboard:write', text),
   checkForUpdates: () => ipcRenderer.send('update:check'),
